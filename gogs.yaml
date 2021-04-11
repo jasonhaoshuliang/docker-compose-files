@@ -1,0 +1,15 @@
+version: '3'
+
+services:
+  gogs:
+    image: gogs/gogs:latest
+    container_name: gogs_git
+    ports:
+      - "10080:3000"
+      - "8022:22"
+    volumes:
+      - /data/gogs:/data
+    environment:
+      - TZ=Asia/Shanghai
+    restart: always
+    privileged: true

@@ -1,0 +1,14 @@
+version: '3'
+
+services:
+  registry:
+    image: registry:latest
+    container_name: registry
+    ports:
+      - "5000:5000"
+    environment:
+      - TZ=Asia/Shanghai
+    volumes:
+      - /data/registry:/var/lib/registry
+    restart: always
+    privileged: true

@@ -1,0 +1,97 @@
+version: '3.7'
+
+services:
+  node-exporter:
+    image: prom/node-exporter:latest
+    container_name: node-exporter
+    ports:
+      - "9100:9100"
+    networks:
+      - prom
+    restart: always
+  dingtalk:
+    image: timonwong/prometheus-webhook-dingtalk:latest
+    container_name: prometheus_webhook_dingtalk
+    volumes:
+      - type: bind
+        source: /data/alertmanager/config.yml
+        target: /etc/prometheus-webhook-dingtalk/config.yml
+        read_only: true
+    ports:
+      - "8060:8060"
+    restart: always
+    networks:
+      - prom
+
+  alertmanager:
+    depends_on:
+      - dingtalk
+    image: prom/alertmanager:latest
+    container_name: alertmanager
+    volumes:
+      - type: bind
+        source: /data/alertmanager/alertmanager.yml
+        target: /etc/alertmanager/alertmanager.yml
+        read_only: true
+    ports:
+      - "9093:9093"
+      - "9094:9094"
+    restart: always
+    networks:
+      - prom
+
+  prometheus:
+    depends_on:
+      - alertmanager
+    image: prom/prometheus:latest
+    container_name: prometheus
+    volumes:
+      - type: bind
+        source: /data/prometheus/prometheus.yml
+        target: /etc/prometheus/prometheus.yml
+        read_only: true
+      - type: bind
+        source: /data/prometheus/alert-rules.yml
+        target: /etc/prometheus/alert-rules.yml
+        read_only: true
+      - type: volume
+        source: prometheus
+        target: /prometheus
+    ports:
+      - "9090:9090"
+    restart: always
+    networks:
+      - prom
+
+  grafana:
+    depends_on:
+      - prometheus
+    image: grafana/grafana:latest
+    container_name: grafana
+    volumes:
+      - type: volume
+        source: grafana
+        target: /var/lib/grafana
+    ports:
+      - "3000:3000"
+    restart: always
+    networks:
+      - prom
+
+volumes:
+  prometheus:
+    driver: local
+    driver_opts:
+      type: none
+      o: bind
+      device: /data/prometheus/data
+  grafana:
+    driver: local
+    driver_opts:
+      type: none
+      o: bind
+      device: /data/grafana
+      
+networks:
+  prom:
+    driver: bridge

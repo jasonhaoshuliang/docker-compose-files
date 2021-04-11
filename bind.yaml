@@ -1,0 +1,16 @@
+version: '3.7'
+
+services:
+  bind:
+    image: sameersbn/bind:latest
+    container_name: dns_bind
+    ports:
+      - "53:53/tcp"
+      - "53:53/udp"
+      - "10000:10000/tcp"
+    environment:
+      - TZ=Asia/Shanghai
+    volumes:
+      - "/data/bind:/data"
+    restart: always
+    privileged: true

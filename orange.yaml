@@ -1,0 +1,19 @@
+version: '3.8'
+
+services:
+  syhily_orange:
+    image: syhily/orange:latest
+    container_name: syhily_orange
+    ports:
+      - "7777:7777"
+      - "8888:8888"
+      - "9999:9999"
+    environment:
+      - TZ=Asia/Shanghai
+      - ORANGE_DATABASE=orange
+      - "ORANGE_HOST=192.168.149.128"
+      - ORANGE_PORT=3306
+      - ORANGE_USER=root
+      - ORANGE_PWD=123456
+    restart: always
+    privileged: true

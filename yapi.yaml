@@ -1,0 +1,38 @@
+version: '2.1'
+services:
+  yapi01:
+    image: mrjin/yapi:latest
+    privileged: true
+    container_name: yapi
+    environment:
+      - VERSION=1.5.6
+      - LOG_PATH=/tmp/yapi.log
+      - HOME=/home
+      - PORT=3000
+      - ADMIN_EMAIL=oldguy@qq.com
+      - DB_SERVER=mongo
+      - DB_NAME=yapi
+      - DB_PORT=27017
+    # restart: always
+    ports:
+      - 3001:3000
+    volumes:
+      - /data/yapi/log/yapi.log:/home/vendors/log # log dir
+    depends_on:
+      - mongo
+    entrypoint: "bash /wait-for-it.sh mongo:27017 -- entrypoint.sh"
+    networks:
+      - back-net
+  mongo:
+    image: mongo
+    container_name: mongo
+    privileged: true
+    restart: always
+    ports:
+      - 27017:27017
+    volumes:
+      - /data/mongodb:/data/db #db dir
+    networks:
+      - back-net
+networks:
+  back-net:
