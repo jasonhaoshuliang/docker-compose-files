@@ -1,0 +1,11 @@
+# 创建一个configmap
+apiVersion: v1
+kind: ConfigMap
+metadata:
+  name: test-configmap
+  namespace: test
+data:
+  test_key1: 3600y
+  test_key2: 3601y
+  test_key3: 3602y
+  test_key4: 3603y

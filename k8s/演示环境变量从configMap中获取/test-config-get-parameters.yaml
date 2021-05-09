@@ -1,0 +1,25 @@
+# 测试启动参数从configmap中获取
+# 这里首先需要创建configmap才可以
+apiVersion: v1
+kind: Pod
+metadata:
+  name: test-configmap-pod-0509
+  namespace: test
+spec:
+  containers:
+    - name: test-get-env-parameters
+      image: hub.haoshuliang.com/library/nginx:v1.0.1
+      command: ["env"]
+      env:
+        - name: ENV1
+          valueFrom:
+            configMapKeyRef:
+              name: test-configmap
+              key: test_key1
+        - name: ENV2
+          valueFrom:
+            configMapKeyRef:
+              name: test-configmap
+              key: test_key2
+  restartPolicy: Never
+
