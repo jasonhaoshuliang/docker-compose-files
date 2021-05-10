@@ -1,0 +1,50 @@
+# 测试实现configMap的热更新
+apiVersion: v1
+kind: ConfigMap
+metadata:
+  name: log-config
+  namespace: test
+data:
+  log_level: INFO
+
+---
+# 再创建一个deployment去读取上面log-level的配置
+apiVersion: extensions/v1beta1
+kind: Deployment
+metadata:
+  name: test-not-update-from-config
+  namespace: test
+spec:
+  replicas: 1
+  template:
+    metadata:
+      labels:
+        run: my-nginx
+    spec:
+      containers:
+      - name: my-nginx-0510
+        image: hub.haoshuliang.com/library/nginx:v1.0.1
+        ports:
+        - containerPort: 80
+        volumeMounts:
+        - name: config-volume
+          mountPath: /etc/config
+      volumes:
+        - name: config-volume
+          configMap:
+            name: log-config
+
+# 1 进入pod中查看
+# kubectl -n test exec test-not-update-from-config-5b85987f48-bm42m -it -- more /etc/config/log_level
+# 结果为INFO
+
+# 2 修改ConfigMap中的配置信息，记得修改data和annotations下面的值才可以
+# kubectl edit configmap log-config -n test
+
+# 3 重新查看值
+# kubectl -n test exec test-not-update-from-config-5b85987f48-bm42m -it -- more /etc/config/log_level
+# 结果为DEBUG
+
+# Q: 怎样热更新pod实现pod的滚动更新呢？
+# A: 可以edit pod 更新annotations的某个值，这个值最可以随便执行
+# Eg: kubectl patch deployment test-not-update-from-config -n test --patch '{"spec": {"template": {"metadata": {"annotations":{"version/config":"20210510"}}}}}'
